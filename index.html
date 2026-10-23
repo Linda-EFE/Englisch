@@ -65,6 +65,8 @@ h2{font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 .speak{position:absolute;top:12px;right:12px;border:0;background:transparent;font-size:22px;padding:6px;color:var(--muted)}
 .aspeak{align-self:center;margin-top:12px;border:1.5px solid var(--line);background:transparent;color:var(--muted);
   font:inherit;font-size:14px;padding:6px 14px;border-radius:20px}
+#v-quiz{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;cursor:pointer}
+.hint{text-align:center;color:var(--muted);font-size:14px;margin:14px 8px}
 .again{font-size:12px;color:var(--mid);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
 .actions{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));
   background:linear-gradient(to top,var(--bg) 70%,transparent)}
@@ -141,6 +143,7 @@ h2{font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
     <button class="aspeak hidden" id="aspeak" aria-label="Antwort vorlesen">🔊 Antwort vorlesen</button>
     <div class="meta hidden" id="ameta"></div>
   </div>
+  <p class="hint" id="hint"></p>
   <div class="actions"><div class="in" id="act-reveal">
     <button class="btn" id="reveal">Aufdecken</button>
   </div><div class="in hidden" id="act-grade">
@@ -316,6 +319,7 @@ function next(){
   $("again").classList.toggle("hidden", !item.retry);
   $("atext").classList.add("hidden"); $("ameta").classList.add("hidden");
   $("act-reveal").classList.remove("hidden"); $("act-grade").classList.add("hidden");
+  S.step = 0; showStep();
   $("count").textContent = Math.min(S.done + 1, S.total) + " / " + S.total;
   $("prog").style.width = (S.done / S.total * 100) + "%";
 }
@@ -326,7 +330,20 @@ function reveal(){
   $("ameta").classList.remove("hidden");
   $("act-reveal").classList.add("hidden"); $("act-grade").classList.remove("hidden");
   $("aspeak").classList.remove("hidden");
-  if (dir === "de") sayEn();
+}
+// Tippen irgendwo auf den Bildschirm: 1. Tipp liest die Frage vor,
+// 2. Tipp deckt die Antwort auf und liest sie vor, jeder weitere Tipp wiederholt die Antwort.
+function tap(){
+  if (S.step === 0){ speakQuestion(); S.step = 1; }
+  else if (S.step === 1){ reveal(); speakAnswer(); S.step = 2; }
+  else speakAnswer();
+  showStep();
+}
+function showStep(){
+  $("reveal").textContent = S.step === 0 ? "🔊 Frage vorlesen" : "Aufdecken";
+  $("hint").textContent = ["Tippe irgendwo auf den Bildschirm, um die Frage zu hören.",
+    "Nochmal tippen: Antwort aufdecken und vorlesen.",
+    "Tippen: Antwort nochmal hören."][S.step];
 }
 function grade(ok){
   const item = S.cur, w = item.w;
@@ -370,11 +387,11 @@ function sayDe(){ say(S.cur.w.de.replace(/\bjmd(m|n|s)?\.?/g, "jemand").replace(
 function speakQuestion(){ S.cur.dir === "en" ? sayEn() : sayDe(); }
 function speakAnswer(){ S.cur.dir === "en" ? sayDe() : sayEn(); }
 $("start").onclick = () => startRound();
-$("reveal").onclick = reveal;
-$("qcard").onclick = e => { if (!e.target.closest("button") && !$("act-reveal").classList.contains("hidden")) reveal(); };
+$("reveal").onclick = tap;
+$("v-quiz").onclick = e => { if (!e.target.closest("button")) tap(); };
 $("yes").onclick = () => grade(true);
 $("no").onclick = () => grade(false);
-$("speak").onclick = speakQuestion;
+$("speak").onclick = () => S.step === 0 ? tap() : speakQuestion();
 $("aspeak").onclick = speakAnswer;
 $("quit").onclick = () => { if (S.done === 0 || confirm("Runde beenden? Bisherige Antworten sind gespeichert.")) show("home"); };
 $("d-again").onclick = () => startRound();
