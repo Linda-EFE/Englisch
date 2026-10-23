@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Englisch</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Englisch">
+<meta name="theme-color" content="#f6f3ee" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16181d" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#f6f3ee; --card:#ffffff; --ink:#1d2027; --muted:#6b6f78; --line:#e4dfd6;
+  --accent:#1f4e79; --accent-ink:#fff; --good:#2e7d4f; --bad:#b23b3b; --mid:#c08a1e;
+  --shadow:0 1px 2px rgba(0,0,0,.05),0 6px 20px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#16181d; --card:#20232a; --ink:#eceef2; --muted:#9aa0aa; --line:#30343c;
+    --accent:#6fa8dc; --accent-ink:#0d1520; --good:#5cbf86; --bad:#e07070; --mid:#e0b04a;
+    --shadow:0 1px 2px rgba(0,0,0,.3);}
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);
+  font:17px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.wrap{max-width:560px;margin:0 auto;padding:16px 16px 130px;min-height:100vh}
+h1{font-size:26px;margin:8px 0 2px;letter-spacing:-.01em}
+h2{font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:24px 0 8px;font-weight:600}
+.sub{color:var(--muted);margin:0 0 8px}
+.card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:16px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:12px;text-align:center}
+.stat b{display:block;font-size:24px;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--muted)}
+.stat.good b{color:var(--good)} .stat.mid b{color:var(--mid)} .stat.bad b{color:var(--bad)}
+.bar{display:flex;height:8px;border-radius:4px;overflow:hidden;margin-top:12px;background:var(--line)}
+.bar i{display:block}
+.seg{display:flex;background:var(--line);border-radius:12px;padding:3px;gap:3px}
+.seg button{flex:1;border:0;background:transparent;color:var(--ink);font:inherit;font-size:15px;padding:9px 4px;border-radius:9px}
+.seg button.on{background:var(--card);box-shadow:var(--shadow);font-weight:600}
+.row{margin-bottom:12px}
+.label{font-size:14px;color:var(--muted);margin:0 0 6px}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:16px;font:inherit;font-weight:600;font-size:18px;
+  background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--line)}
+.btn:active{transform:scale(.98)}
+.btn+.btn{margin-top:10px}
+/* Abfrage */
+.top{display:flex;align-items:center;gap:12px;margin:4px 0 16px}
+.x{border:0;background:var(--card);box-shadow:var(--shadow);width:40px;height:40px;border-radius:20px;font-size:20px;color:var(--muted)}
+.prog{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--accent);transition:width .25s}
+.count{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.quiz{min-height:52vh;display:flex;flex-direction:column;justify-content:center;text-align:center;padding:28px 20px;position:relative}
+.dir{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.q{font-size:30px;font-weight:650;margin:10px 0 2px;white-space:pre-line;word-break:break-word}
+.pron{color:var(--muted);font-size:16px}
+.ans{border-top:1px solid var(--line);margin-top:22px;padding-top:20px;font-size:22px;white-space:pre-line;word-break:break-word}
+.meta{font-size:13px;color:var(--muted);margin-top:14px}
+.speak{position:absolute;top:12px;right:12px;border:0;background:transparent;font-size:22px;padding:6px;color:var(--muted)}
+.again{font-size:12px;color:var(--mid);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.actions{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  background:linear-gradient(to top,var(--bg) 70%,transparent)}
+.actions .in{max-width:560px;margin:0 auto;display:flex;gap:10px}
+.actions .btn{margin:0}
+.btn.good{background:var(--good);color:#fff} .btn.bad{background:var(--bad);color:#fff}
+/* Liste */
+.search{width:100%;font:inherit;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);margin-bottom:12px}
+.item{display:flex;gap:10px;align-items:flex-start;padding:11px 2px;border-bottom:1px solid var(--line)}
+.item .t{flex:1;min-width:0}
+.item .e{font-weight:600}
+.item .d{color:var(--muted);font-size:15px;white-space:pre-line}
+.dot{width:10px;height:10px;border-radius:5px;margin-top:8px;flex:none}
+.dot.good{background:var(--good)} .dot.mid{background:var(--mid)} .dot.bad{background:var(--bad)} .dot.new{background:var(--line)}
+.item .n{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.nav .in{max-width:560px;margin:0 auto;display:flex}
+.nav button{flex:1;border:0;background:none;font:inherit;font-size:13px;color:var(--muted);padding:10px 0 12px}
+.nav button.on{color:var(--accent);font-weight:600}
+.nav svg{display:block;margin:0 auto 2px;width:24px;height:24px}
+.small{font-size:14px;color:var(--muted)}
+.wrong{margin-top:8px}
+.hidden{display:none!important}
+.toast{position:fixed;left:50%;top:calc(16px + env(safe-area-inset-top));transform:translateX(-50%);background:var(--ink);color:var(--bg);
+  padding:10px 16px;border-radius:12px;font-size:15px;z-index:9;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- Start -->
+<main class="wrap" id="v-home">
+  <h1>Englisch</h1>
+  <p class="sub" id="total">Lade Vokabeln …</p>
+  <div class="stats">
+    <div class="stat good"><b id="s-good">–</b><span>sitzen</span></div>
+    <div class="stat mid"><b id="s-mid">–</b><span>wackelig</span></div>
+    <div class="stat bad"><b id="s-bad">–</b><span>schwach</span></div>
+  </div>
+  <div class="bar" id="bar"></div>
+  <p class="small" id="today" style="margin:10px 2px 0"></p>
+
+  <h2>Neue Runde</h2>
+  <div class="row"><p class="label">Richtung</p>
+    <div class="seg" data-opt="dir">
+      <button data-v="en">Englisch → Deutsch</button><button data-v="de">Deutsch → Englisch</button><button data-v="mix">Gemischt</button>
+    </div></div>
+  <div class="row"><p class="label">Auswahl</p>
+    <div class="seg" data-opt="pick">
+      <button data-v="smart">Schwache zuerst</button><button data-v="random">Zufällig</button>
+    </div></div>
+  <div class="row"><p class="label">Anzahl</p>
+    <div class="seg" data-opt="size">
+      <button data-v="10">10</button><button data-v="20">20</button><button data-v="30">30</button><button data-v="50">50</button>
+    </div></div>
+  <button class="btn" id="start" style="margin-top:20px">Los geht's</button>
+</main>
+
+<!-- Abfrage -->
+<main class="wrap hidden" id="v-quiz">
+  <div class="top">
+    <button class="x" id="quit" aria-label="Beenden">✕</button>
+    <div class="prog"><i id="prog" style="width:0"></i></div>
+    <span class="count" id="count"></span>
+  </div>
+  <div class="card quiz" id="qcard">
+    <button class="speak" id="speak" aria-label="Vorlesen">🔊</button>
+    <div class="again hidden" id="again">Nochmal</div>
+    <div class="dir" id="qdir"></div>
+    <div class="q" id="qtext"></div>
+    <div class="pron" id="qpron"></div>
+    <div class="ans hidden" id="atext"></div>
+    <div class="meta hidden" id="ameta"></div>
+  </div>
+  <div class="actions"><div class="in" id="act-reveal">
+    <button class="btn" id="reveal">Aufdecken</button>
+  </div><div class="in hidden" id="act-grade">
+    <button class="btn bad" id="no">✗ Falsch</button>
+    <button class="btn good" id="yes">✓ Gewusst</button>
+  </div></div>
+</main>
+
+<!-- Ergebnis -->
+<main class="wrap hidden" id="v-done">
+  <h1 id="d-title">Geschafft!</h1>
+  <p class="sub" id="d-sub"></p>
+  <div class="card" id="d-wrong-box">
+    <p class="label" style="margin:0">Diese solltest du dir nochmal ansehen:</p>
+    <div id="d-wrong" class="wrong"></div>
+  </div>
+  <div style="margin-top:20px">
+    <button class="btn" id="d-again">Noch eine Runde</button>
+    <button class="btn ghost" id="d-home">Zur Übersicht</button>
+  </div>
+</main>
+
+<!-- Liste -->
+<main class="wrap hidden" id="v-list">
+  <h1>Alle Vokabeln</h1>
+  <input class="search" id="q" type="search" placeholder="Suchen (Englisch oder Deutsch) …" autocomplete="off" autocorrect="off" autocapitalize="off">
+  <div class="seg" data-opt="filter" style="margin-bottom:8px">
+    <button data-v="all">Alle</button><button data-v="bad">Schwach</button><button data-v="mid">Wackelig</button><button data-v="good">Sitzen</button>
+  </div>
+  <p class="small" id="l-count"></p>
+  <div id="list"></div>
+</main>
+
+<!-- Einstellungen -->
+<main class="wrap hidden" id="v-more">
+  <h1>Lernstand</h1>
+  <p class="sub">Dein Fortschritt wird auf diesem iPhone gespeichert. Lege die App über <b>Teilen → Zum Home-Bildschirm</b> ab, dann bleibt er dauerhaft erhalten.</p>
+  <div class="card">
+    <p class="label" style="margin-top:0">Sicherung</p>
+    <p class="small" style="margin-top:0">Speichere ab und zu eine Sicherung (z. B. in iCloud Drive). Damit kannst du den Lernstand auch auf ein anderes Gerät übertragen.</p>
+    <button class="btn" id="export">Sicherung speichern</button>
+    <button class="btn ghost" id="import-btn">Sicherung laden</button>
+    <input type="file" id="import" accept="application/json,.json" class="hidden">
+  </div>
+  <div class="card" style="margin-top:16px">
+    <p class="label" style="margin-top:0">Zurücksetzen</p>
+    <p class="small" style="margin-top:0">Löscht den Fortschritt auf diesem Gerät. Danach gilt wieder der Stand aus der alten Access-Datenbank.</p>
+    <button class="btn ghost" id="reset" style="color:var(--bad)">Fortschritt zurücksetzen</button>
+  </div>
+  <p class="small" id="ver" style="margin-top:20px;text-align:center"></p>
+</main>
+
+<nav class="nav" id="nav"><div class="in">
+  <button data-view="home" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M8 12h8"/></svg>Üben</button>
+  <button data-view="list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>Vokabeln</button>
+  <button data-view="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Lernstand</button>
+</div></nav>
+
+<script>
+"use strict";
+const VERSION = "1.0";
+const $ = id => document.getElementById(id);
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } }
+};
+
+let words = [];          // {en, de, pos, tot, last, date, key}
+let progress = store.get("en_progress", {});   // key -> [pos, tot, last, date]
+let settings = Object.assign({dir:"en", pick:"smart", size:"20", filter:"all"}, store.get("en_settings", {}));
+let daily = store.get("en_daily", {});          // date -> count
+
+const todayStr = () => { const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+const splitPron = s => { const m = s.match(/^(.*?)\s*(\[[^\]]+\])\s*$/s); return m ? [m[1], m[2]] : [s, ""]; };
+
+// Karteikasten-Prinzip wie in der alten Access-App: w.pos ist die Lernstufe (0–6).
+// Richtig → eine Stufe höher, falsch → zurück auf 0. Je höher die Stufe, desto länger die Pause.
+const MAXSTUFE = 6;
+const PAUSE = [0, 1, 2, 4, 8, 16, 30];   // Tage bis zur nächsten Abfrage je Stufe
+function level(w){
+  if (w.tot === 0) return "new";
+  if (w.pos >= 3) return "good";
+  if (w.pos >= 1) return "mid";
+  return "bad";
+}
+function score(w){
+  const stufe = Math.max(0, Math.min(w.pos, MAXSTUFE));
+  const days = (Date.now() - Date.parse(w.date)) / 864e5;
+  const faellig = days >= PAUSE[stufe] ? 3 : 0;
+  return faellig + (MAXSTUFE - stufe) * 0.6 + (w.tot === 0 ? 1 : 0) + Math.random() * 1.5;
+}
+
+async function load(){
+  const res = await fetch("vokabeln.json", {cache:"no-cache"}).catch(() => fetch("vokabeln.json"));
+  const raw = await res.json();
+  words = raw.map(([en, de, pos, tot, last, date]) => {
+    const key = en + "|" + de;
+    const p = progress[key];
+    return p ? {en, de, pos:p[0], tot:p[1], last:p[2], date:p[3], key}
+             : {en, de, pos, tot, last, date, key};
+  });
+  renderHome();
+}
+
+/* ---------- Navigation ---------- */
+function show(view){
+  for (const v of ["home","quiz","done","list","more"]) $("v-"+v).classList.toggle("hidden", v !== view);
+  $("nav").classList.toggle("hidden", view === "quiz" || view === "done");
+  document.querySelectorAll("#nav button").forEach(b => b.classList.toggle("on", b.dataset.view === view));
+  if (view === "home") renderHome();
+  if (view === "list") renderList();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll("#nav button").forEach(b => b.onclick = () => show(b.dataset.view));
+
+document.querySelectorAll(".seg").forEach(seg => {
+  const opt = seg.dataset.opt;
+  const sync = () => seg.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === settings[opt]));
+  seg.querySelectorAll("button").forEach(b => b.onclick = () => {
+    settings[opt] = b.dataset.v; store.set("en_settings", settings); sync();
+    if (opt === "filter") renderList();
+  });
+  sync();
+});
+
+function toast(t){ const el=$("toast"); el.textContent=t; el.classList.add("show"); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove("show"),2200); }
+
+/* ---------- Start ---------- */
+function renderHome(){
+  const c = {good:0, mid:0, bad:0, new:0};
+  words.forEach(w => c[level(w)]++);
+  $("total").textContent = words.length.toLocaleString("de-DE") + " Vokabeln";
+  $("s-good").textContent = c.good; $("s-mid").textContent = c.mid; $("s-bad").textContent = c.bad + c.new;
+  const n = words.length || 1;
+  $("bar").innerHTML = `<i style="width:${c.good/n*100}%;background:var(--good)"></i><i style="width:${c.mid/n*100}%;background:var(--mid)"></i><i style="width:${(c.bad+c.new)/n*100}%;background:var(--bad)"></i>`;
+  const t = daily[todayStr()] || 0;
+  $("today").textContent = t ? `Heute schon ${t} Vokabeln geübt.` : "Heute noch nicht geübt.";
+}
+
+/* ---------- Abfrage ---------- */
+let S = null;
+function startRound(pool){
+  const size = +settings.size;
+  let list;
+  if (pool) list = pool.slice();
+  else if (settings.pick === "random") list = words.slice().sort(() => Math.random() - .5).slice(0, size);
+  else list = words.map(w => [score(w), w]).sort((a,b) => b[0]-a[0]).slice(0, size).map(x => x[1]);
+  list.sort(() => Math.random() - .5);
+  S = { queue: list.map(w => ({w, dir: pickDir(), retry:false})), total: list.length, done: 0, right: 0, wrong: [] };
+  show("quiz"); next();
+}
+function pickDir(){ return settings.dir === "mix" ? (Math.random() < .5 ? "en" : "de") : settings.dir; }
+
+function next(){
+  if (!S.queue.length) return finish();
+  const item = S.cur = S.queue.shift();
+  const {w, dir} = item;
+  const [en, pron] = splitPron(w.en);
+  $("qdir").textContent = dir === "en" ? "Englisch → Deutsch" : "Deutsch → Englisch";
+  $("qtext").textContent = dir === "en" ? en : w.de;
+  $("qpron").textContent = dir === "en" ? pron : "";
+  $("atext").textContent = dir === "en" ? w.de : en + (pron ? "\n" + pron : "");
+  $("speak").classList.toggle("hidden", dir !== "en");
+  $("again").classList.toggle("hidden", !item.retry);
+  $("atext").classList.add("hidden"); $("ameta").classList.add("hidden");
+  $("act-reveal").classList.remove("hidden"); $("act-grade").classList.add("hidden");
+  $("count").textContent = Math.min(S.done + 1, S.total) + " / " + S.total;
+  $("prog").style.width = (S.done / S.total * 100) + "%";
+}
+function reveal(){
+  const {w, dir} = S.cur;
+  $("atext").classList.remove("hidden");
+  $("ameta").textContent = w.tot ? `Stufe ${Math.max(w.pos,0)} von ${MAXSTUFE} · ${w.tot}× abgefragt · zuletzt ${new Date(w.date).toLocaleDateString("de-DE")}` : "Noch nie geübt";
+  $("ameta").classList.remove("hidden");
+  $("act-reveal").classList.add("hidden"); $("act-grade").classList.remove("hidden");
+  if (dir === "de") speak();
+}
+function grade(ok){
+  const item = S.cur, w = item.w;
+  if (!item.retry){
+    w.tot++; w.pos = ok ? Math.min(Math.max(w.pos, 0) + 1, MAXSTUFE) : 0; w.last = ok ? 1 : 0; w.date = todayStr();
+    progress[w.key] = [w.pos, w.tot, w.last, w.date];
+    store.set("en_progress", progress);
+    daily[todayStr()] = (daily[todayStr()] || 0) + 1; store.set("en_daily", daily);
+    S.done++; if (ok) S.right++; else S.wrong.push(w);
+  }
+  if (!ok){ // in dieser Runde nochmal fragen, ein paar Karten später
+    const pos = Math.min(S.queue.length, 3 + Math.floor(Math.random()*3));
+    S.queue.splice(pos, 0, {w, dir:item.dir, retry:true});
+  }
+  next();
+}
+function finish(){
+  $("prog").style.width = "100%";
+  const pct = S.total ? Math.round(S.right / S.total * 100) : 0;
+  $("d-title").textContent = pct >= 90 ? "Hervorragend!" : pct >= 70 ? "Gut gemacht!" : pct >= 50 ? "Weiter so!" : "Dranbleiben!";
+  $("d-sub").textContent = `${S.right} von ${S.total} gewusst (${pct} %).`;
+  $("d-wrong-box").classList.toggle("hidden", !S.wrong.length);
+  $("d-wrong").innerHTML = S.wrong.map(w => `<div class="item"><div class="t"><div class="e">${esc(w.en)}</div><div class="d">${esc(w.de)}</div></div></div>`).join("");
+  $("d-again").textContent = S.wrong.length ? "Falsche nochmal üben" : "Noch eine Runde";
+  show("done");
+}
+function speak(){
+  try{
+    const [en] = splitPron(S.cur.w.en);
+    const txt = en.replace(/\(.*?\)/g, "").replace(/\bsth\.?/g, "something").replace(/\bsb\.?/g, "somebody");
+    const u = new SpeechSynthesisUtterance(txt); u.lang = "en-GB"; u.rate = .9;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  }catch(e){}
+}
+$("start").onclick = () => startRound();
+$("reveal").onclick = reveal;
+$("qcard").onclick = e => { if (e.target.id !== "speak" && !$("act-reveal").classList.contains("hidden")) reveal(); };
+$("yes").onclick = () => grade(true);
+$("no").onclick = () => grade(false);
+$("speak").onclick = speak;
+$("quit").onclick = () => { if (S.done === 0 || confirm("Runde beenden? Bisherige Antworten sind gespeichert.")) show("home"); };
+$("d-again").onclick = () => S.wrong.length ? startRound(S.wrong) : startRound();
+$("d-home").onclick = () => show("home");
+
+/* ---------- Liste ---------- */
+const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const norm = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+function renderList(){
+  const q = norm($("q").value.trim());
+  const f = settings.filter;
+  const res = words.filter(w => {
+    const l = level(w);
+    if (f === "bad" && !(l === "bad" || l === "new")) return false;
+    if (f !== "all" && f !== "bad" && l !== f) return false;
+    return !q || norm(w.en).includes(q) || norm(w.de).includes(q);
+  }).sort((a,b) => a.en.replace(/^\(?to\)?\s+/i,"").localeCompare(b.en.replace(/^\(?to\)?\s+/i,""), "en"));
+  $("l-count").textContent = res.length + " Treffer";
+  $("list").innerHTML = res.slice(0, 300).map(w =>
+    `<div class="item"><span class="dot ${level(w)}"></span><div class="t"><div class="e">${esc(w.en)}</div><div class="d">${esc(w.de)}</div></div><span class="n">Stufe ${Math.max(w.pos,0)}</span></div>`
+  ).join("") + (res.length > 300 ? `<p class="small">… weitere ${res.length-300} – Suche eingrenzen.</p>` : "");
+}
+$("q").oninput = renderList;
+
+/* ---------- Sicherung ---------- */
+$("export").onclick = async () => {
+  const data = JSON.stringify({app:"Englisch", version:1, saved:new Date().toISOString(), progress, daily});
+  const name = `Englisch-Lernstand-${todayStr()}.json`;
+  const file = new File([data], name, {type:"application/json"});
+  try{
+    if (navigator.canShare && navigator.canShare({files:[file]})) { await navigator.share({files:[file], title:name}); return; }
+  }catch(e){ if (e.name === "AbortError") return; }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(file); a.download = name; a.click();
+};
+$("import-btn").onclick = () => $("import").click();
+$("import").onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try{
+    const d = JSON.parse(await f.text());
+    if (!["Englisch","EnglischEduard"].includes(d.app) || !d.progress) throw 0;
+    progress = d.progress; daily = d.daily || {};
+    store.set("en_progress", progress); store.set("en_daily", daily);
+    await load(); toast("Lernstand geladen ✓");
+  }catch(err){ toast("Das ist keine gültige Sicherung."); }
+  e.target.value = "";
+};
+$("reset").onclick = async () => {
+  if (!confirm("Wirklich den gesamten Fortschritt auf diesem Gerät löschen?")) return;
+  progress = {}; daily = {}; store.set("en_progress", progress); store.set("en_daily", daily);
+  await load(); toast("Zurückgesetzt");
+};
+$("ver").textContent = "Version " + VERSION;
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+load().catch(() => { $("total").textContent = "Vokabeln konnten nicht geladen werden."; });
+</script>
+</body>
+</html>
