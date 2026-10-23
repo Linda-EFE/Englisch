@@ -1,4 +1,4 @@
-# Englisch
+# Englisch Eduard
 
 Vokabeltrainer Englisch ↔ Deutsch fürs iPhone. Er läuft komplett im Browser, auch offline, und braucht keinen Server und kein Konto.
 
