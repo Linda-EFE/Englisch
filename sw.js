@@ -1,5 +1,6 @@
-// Offline-Unterstützung: zeigt sofort die gespeicherte Version und holt im Hintergrund Updates.
-const CACHE = "en-v1";
+// Offline-Unterstützung: lädt bei Internetverbindung immer die neueste Version,
+// ohne Verbindung die zuletzt gespeicherte.
+const CACHE = "en-v2";
 const FILES = ["./", "index.html", "vokabeln.json", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", e => {
@@ -12,11 +13,14 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
   e.respondWith(caches.open(CACHE).then(async cache => {
-    const cached = await cache.match(e.request, {ignoreSearch: true});
-    const network = fetch(e.request).then(res => {
+    try {
+      const res = await fetch(e.request, {cache: "no-cache"});
       if (res.ok) cache.put(e.request, res.clone());
       return res;
-    }).catch(() => cached);
-    return cached || network;
+    } catch (err) {
+      const cached = await cache.match(e.request, {ignoreSearch: true});
+      if (cached) return cached;
+      throw err;
+    }
   }));
 });

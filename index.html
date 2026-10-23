@@ -155,7 +155,8 @@ h2{font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
     <div id="d-wrong" class="wrong"></div>
   </div>
   <div style="margin-top:20px">
-    <button class="btn" id="d-again">Noch eine Runde</button>
+    <button class="btn" id="d-again">Neue Runde</button>
+    <button class="btn ghost" id="d-wrong-again">Nur die falschen nochmal</button>
     <button class="btn ghost" id="d-home">Zur Übersicht</button>
   </div>
 </main>
@@ -209,6 +210,7 @@ let words = [];          // {en, de, pos, tot, last, date, key}
 let progress = store.get("en_progress", {});   // key -> [pos, tot, last, date]
 let settings = Object.assign({dir:"en", pick:"smart", size:"20", filter:"all"}, store.get("en_settings", {}));
 let daily = store.get("en_daily", {});          // date -> count
+let seen = store.get("en_seen", {});            // key -> Zeitpunkt der letzten Abfrage (ms)
 
 const todayStr = () => { const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
 const splitPron = s => { const m = s.match(/^(.*?)\s*(\[[^\]]+\])\s*$/s); return m ? [m[1], m[2]] : [s, ""]; };
@@ -283,8 +285,15 @@ function startRound(pool){
   const size = +settings.size;
   let list;
   if (pool) list = pool.slice();
-  else if (settings.pick === "random") list = words.slice().sort(() => Math.random() - .5).slice(0, size);
-  else list = words.map(w => [score(w), w]).sort((a,b) => b[0]-a[0]).slice(0, size).map(x => x[1]);
+  else {
+    // Wörter, die in der letzten Stunde schon dran waren, erst mal auslassen
+    const cutoff = Date.now() - 60 * 60e3;
+    for (const k in seen) if (seen[k] < cutoff) delete seen[k];
+    let cand = words.filter(w => !seen[w.key]);
+    if (cand.length < size) cand = words;
+    if (settings.pick === "random") list = cand.slice().sort(() => Math.random() - .5).slice(0, size);
+    else list = cand.map(w => [score(w), w]).sort((a,b) => b[0]-a[0]).slice(0, size).map(x => x[1]);
+  }
   list.sort(() => Math.random() - .5);
   S = { queue: list.map(w => ({w, dir: pickDir(), retry:false})), total: list.length, done: 0, right: 0, wrong: [] };
   show("quiz"); next();
@@ -322,11 +331,12 @@ function grade(ok){
     progress[w.key] = [w.pos, w.tot, w.last, w.date];
     store.set("en_progress", progress);
     daily[todayStr()] = (daily[todayStr()] || 0) + 1; store.set("en_daily", daily);
+    seen[w.key] = Date.now(); store.set("en_seen", seen);
     S.done++; if (ok) S.right++; else S.wrong.push(w);
-  }
-  if (!ok){ // in dieser Runde nochmal fragen, ein paar Karten später
-    const pos = Math.min(S.queue.length, 3 + Math.floor(Math.random()*3));
-    S.queue.splice(pos, 0, {w, dir:item.dir, retry:true});
+    if (!ok){ // genau einmal in dieser Runde wiederholen, ein paar Karten später
+      const pos = S.queue.length < 5 ? S.queue.length : 4 + Math.floor(Math.random() * 3);
+      S.queue.splice(pos, 0, {w, dir:item.dir, retry:true});
+    }
   }
   next();
 }
@@ -337,7 +347,8 @@ function finish(){
   $("d-sub").textContent = `${S.right} von ${S.total} gewusst (${pct} %).`;
   $("d-wrong-box").classList.toggle("hidden", !S.wrong.length);
   $("d-wrong").innerHTML = S.wrong.map(w => `<div class="item"><div class="t"><div class="e">${esc(w.en)}</div><div class="d">${esc(w.de)}</div></div></div>`).join("");
-  $("d-again").textContent = S.wrong.length ? "Falsche nochmal üben" : "Noch eine Runde";
+  $("d-wrong-again").textContent = `Nur die ${S.wrong.length} falschen nochmal`;
+  $("d-wrong-again").classList.toggle("hidden", !S.wrong.length);
   show("done");
 }
 function speak(){
@@ -355,7 +366,8 @@ $("yes").onclick = () => grade(true);
 $("no").onclick = () => grade(false);
 $("speak").onclick = speak;
 $("quit").onclick = () => { if (S.done === 0 || confirm("Runde beenden? Bisherige Antworten sind gespeichert.")) show("home"); };
-$("d-again").onclick = () => S.wrong.length ? startRound(S.wrong) : startRound();
+$("d-again").onclick = () => startRound();
+$("d-wrong-again").onclick = () => startRound(S.wrong);
 $("d-home").onclick = () => show("home");
 
 /* ---------- Liste ---------- */
