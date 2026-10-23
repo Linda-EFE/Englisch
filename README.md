@@ -14,7 +14,10 @@ Vokabeltrainer Englisch ↔ Deutsch fürs iPhone. Er läuft komplett im Browser,
 - Karteikasten-Prinzip wie in der alten Access-App: Jede Vokabel hat eine **Stufe von 0 bis 6**. Bei *Gewusst* steigt sie um eine Stufe, bei *Falsch* fällt sie auf 0 zurück. Stufe 0 gilt als *schwach*, Stufe 1–2 als *wackelig*, ab Stufe 3 *sitzt* die Vokabel.
 - Die Auswahl **Schwache zuerst** nimmt fällige Vokabeln mit niedriger Stufe zuerst. Je höher die Stufe, desto länger ist die Pause bis zur nächsten Abfrage (1, 2, 4, 8, 16, 30 Tage).
 - Falsch beantwortete Wörter kommen in derselben Runde ein paar Karten später nochmal.
-- 🔊 liest das englische Wort vor.
+- Tippen irgendwo auf den Bildschirm: 1. Tipp liest die Frage vor, 2. Tipp deckt die Antwort auf und liest sie vor, 3. Tipp geht zur nächsten Vokabel.
+
+## Englisch-Zum-Einschlafen
+Der Knopf 🌙 auf der Startseite öffnet ruhige Einschlaf-Geschichten (`geschichten.json`, eigene Texte). Jeder Satz wird erst auf Deutsch, dann auf Englisch vorgelesen. Pause, Ausschalt-Timer (wird am Ende langsam leiser) und „nächste Geschichte“ lassen sich einstellen. Das Display muss an bleiben, weil iOS das Vorlesen bei gesperrtem Bildschirm anhält.
 
 ## Dateien
 | Datei | Inhalt |

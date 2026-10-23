@@ -90,6 +90,18 @@ h2{font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 .small{font-size:14px;color:var(--muted)}
 .wrong{margin-top:8px}
 .hidden{display:none!important}
+.night-btn{background:#1b2236;color:#e6e9f2;margin:6px 0 14px;font-size:17px;padding:14px}
+:root.night{--bg:#05070b;--card:#10131a;--ink:#c3c8d2;--muted:#6c7380;--line:#222733;--accent:#8fa8c8;--accent-ink:#05070b;--shadow:none}
+.story{display:block;width:100%;text-align:left;border:0;background:var(--card);color:var(--ink);font:inherit;
+  border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow)}
+.story b{display:block;font-size:17px} .story span{font-size:14px;color:var(--muted)}
+.p-text{min-height:46vh;display:flex;flex-direction:column;justify-content:center;text-align:center;padding:0 8px}
+.p-de,.p-en{font-size:24px;line-height:1.4;margin:12px 0;transition:opacity .6s}
+.p-de{color:var(--muted)} .p-en{color:var(--ink);font-weight:600}
+.p-de.on,.p-en.on{opacity:1} .p-de.off,.p-en.off{opacity:.35}
+.p-ctrl{display:flex;justify-content:center;align-items:center;gap:28px;margin-top:16px}
+.p-ctrl button{border:0;background:var(--card);color:var(--ink);width:56px;height:56px;border-radius:28px;font-size:22px}
+.p-ctrl .p-main{width:76px;height:76px;border-radius:38px;font-size:30px;background:var(--accent);color:var(--accent-ink)}
 .toast{position:fixed;left:50%;top:calc(16px + env(safe-area-inset-top));transform:translateX(-50%);background:var(--ink);color:var(--bg);
   padding:10px 16px;border-radius:12px;font-size:15px;z-index:9;opacity:0;transition:opacity .2s;pointer-events:none}
 .toast.show{opacity:1}
@@ -102,6 +114,7 @@ h2{font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 <main class="wrap" id="v-home">
   <h1>Englisch</h1>
   <p class="sub" id="total">Lade Vokabeln …</p>
+  <button class="btn night-btn" id="open-sleep">🌙 Englisch-Zum-Einschlafen</button>
   <div class="stats">
     <div class="stat good"><b id="s-good">–</b><span>sitzen</span></div>
     <div class="stat mid"><b id="s-mid">–</b><span>wackelig</span></div>
@@ -197,6 +210,40 @@ h2{font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
   <p class="small" id="ver" style="margin-top:20px;text-align:center"></p>
 </main>
 
+<!-- Englisch-Zum-Einschlafen -->
+<main class="wrap hidden" id="v-sleep">
+  <div class="top">
+    <button class="x" id="sleep-back" aria-label="Zurück">✕</button>
+    <h1 style="margin:0;font-size:22px">🌙 Englisch-Zum-Einschlafen</h1>
+  </div>
+  <div id="sleep-list">
+    <p class="sub">Jeder Satz wird erst auf Deutsch, dann auf Englisch vorgelesen. Wähle eine Geschichte:</p>
+    <div id="stories"></div>
+    <h2>Einstellungen</h2>
+    <div class="row"><p class="label">Pause zwischen den Sätzen</p>
+      <div class="seg" data-opt="sleepPause"><button data-v="2">Kurz</button><button data-v="4">Mittel</button><button data-v="7">Lang</button></div></div>
+    <div class="row"><p class="label">Ausschalten nach</p>
+      <div class="seg" data-opt="sleepTimer"><button data-v="15">15 Min</button><button data-v="30">30 Min</button><button data-v="60">60 Min</button><button data-v="0">Nie</button></div></div>
+    <div class="row"><p class="label">Nach der Geschichte</p>
+      <div class="seg" data-opt="sleepAll"><button data-v="1">Nächste Geschichte</button><button data-v="0">Aufhören</button></div></div>
+    <p class="small">Tipp: Das Display muss dafür an bleiben. Dreh die Helligkeit ganz herunter und lass das iPhone mit dem Bildschirm nach unten liegen.</p>
+  </div>
+  <div id="sleep-player" class="hidden">
+    <p class="dir" id="p-title" style="text-align:center;margin-top:24px"></p>
+    <div class="p-text">
+      <p class="p-de" id="p-de"></p>
+      <p class="p-en" id="p-en"></p>
+    </div>
+    <p class="small" id="p-info" style="text-align:center"></p>
+    <div class="p-ctrl">
+      <button id="p-prev" aria-label="Vorheriger Satz">⏮</button>
+      <button id="p-play" class="p-main" aria-label="Pause">⏸</button>
+      <button id="p-next" aria-label="Nächster Satz">⏭</button>
+    </div>
+    <button class="btn ghost" id="p-stop" style="margin-top:28px">Andere Geschichte wählen</button>
+  </div>
+</main>
+
 <nav class="nav" id="nav"><div class="in">
   <button data-view="home" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M8 12h8"/></svg>Üben</button>
   <button data-view="list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>Vokabeln</button>
@@ -214,7 +261,7 @@ const store = {
 
 let words = [];          // {en, de, pos, tot, last, date, key}
 let progress = store.get("en_progress", {});   // key -> [pos, tot, last, date]
-let settings = Object.assign({dir:"en", pick:"smart", size:"20", filter:"all"}, store.get("en_settings", {}));
+let settings = Object.assign({dir:"en", pick:"smart", size:"20", filter:"all", sleepPause:"4", sleepTimer:"30", sleepAll:"1"}, store.get("en_settings", {}));
 let daily = store.get("en_daily", {});          // date -> count
 let seen = store.get("en_seen", {});            // key -> Zeitpunkt der letzten Abfrage (ms)
 
@@ -252,8 +299,10 @@ async function load(){
 
 /* ---------- Navigation ---------- */
 function show(view){
-  for (const v of ["home","quiz","done","list","more"]) $("v-"+v).classList.toggle("hidden", v !== view);
-  $("nav").classList.toggle("hidden", view === "quiz" || view === "done");
+  for (const v of ["home","quiz","done","list","more","sleep"]) $("v-"+v).classList.toggle("hidden", v !== view);
+  $("nav").classList.toggle("hidden", view === "quiz" || view === "done" || view === "sleep");
+  document.documentElement.classList.toggle("night", view === "sleep");
+  if (view !== "sleep") sleepStop();
   document.querySelectorAll("#nav button").forEach(b => b.classList.toggle("on", b.dataset.view === view));
   if (view === "home") renderHome();
   if (view === "list") renderList();
@@ -445,6 +494,110 @@ $("reset").onclick = async () => {
   await load(); toast("Zurückgesetzt");
 };
 $("ver").textContent = "Version " + VERSION;
+
+/* ---------- Englisch-Zum-Einschlafen ---------- */
+// Liest eigene Geschichten Satz für Satz vor: erst Deutsch, dann Englisch, ruhig und langsam.
+let stories = null;
+const P = {story:0, idx:0, playing:false, gen:0, endAt:0, wake:null};
+const wait = ms => new Promise(r => setTimeout(r, ms));
+function pickVoice(lang){
+  try{
+    const vs = speechSynthesis.getVoices().filter(v => v.lang.replace("_","-").startsWith(lang.slice(0,2)));
+    const exact = vs.filter(v => v.lang.replace("_","-") === lang);
+    const pool = exact.length ? exact : vs;
+    return pool.find(v => /premium|enhanced|erweitert/i.test(v.name)) || pool.find(v => v.localService) || pool[0] || null;
+  }catch(e){ return null; }
+}
+function sayWait(txt, lang, rate, volume){
+  return new Promise(res => {
+    try{
+      const u = new SpeechSynthesisUtterance(txt);
+      u.lang = lang; u.rate = rate; u.volume = volume;
+      const v = pickVoice(lang); if (v) u.voice = v;
+      const guard = setTimeout(res, 4000 + txt.length * 150);   // falls "onend" nicht kommt
+      u.onend = u.onerror = () => { clearTimeout(guard); res(); };
+      speechSynthesis.speak(u);
+    }catch(e){ res(); }
+  });
+}
+async function loadStories(){
+  if (stories) return;
+  stories = await (await fetch("geschichten.json")).json();
+  $("stories").innerHTML = stories.map((s, i) =>
+    `<button class="story" data-i="${i}"><b>${esc(s.titel)}</b><span>${esc(s.title)} · ${s.saetze.length} Sätze</span></button>`).join("");
+  $("stories").querySelectorAll(".story").forEach(b => b.onclick = () => sleepStart(+b.dataset.i));
+}
+async function wakeOn(){ try{ if ("wakeLock" in navigator && !P.wake) P.wake = await navigator.wakeLock.request("screen"); P.wake && P.wake.addEventListener("release", () => P.wake = null); }catch(e){} }
+function wakeOff(){ try{ P.wake && P.wake.release(); }catch(e){} P.wake = null; }
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && P.playing) wakeOn(); });
+
+function sleepStart(i){
+  P.story = i; P.idx = 0;
+  const min = +settings.sleepTimer;
+  P.endAt = min ? Date.now() + min * 60e3 : 0;
+  $("sleep-list").classList.add("hidden"); $("sleep-player").classList.remove("hidden");
+  window.scrollTo(0, 0);
+  sleepPlay(true);
+}
+function sleepPlay(withTitle){
+  P.playing = true; $("p-play").textContent = "⏸"; wakeOn();
+  try{ speechSynthesis.cancel(); }catch(e){}
+  sleepLoop(++P.gen, withTitle);
+}
+function sleepPause(){
+  P.playing = false; P.gen++; $("p-play").textContent = "▶";
+  try{ speechSynthesis.cancel(); }catch(e){}
+  wakeOff();
+}
+function sleepStop(){
+  if (!P.playing && $("sleep-player").classList.contains("hidden")) return;
+  sleepPause();
+  $("sleep-player").classList.add("hidden"); $("sleep-list").classList.remove("hidden");
+}
+function showSentence(de, en, part){
+  $("p-de").textContent = de; $("p-en").textContent = en;
+  $("p-de").className = "p-de " + (part === "de" ? "on" : "off");
+  $("p-en").className = "p-en " + (part === "en" ? "on" : "off");
+}
+async function sleepLoop(gen, withTitle){
+  const alive = () => gen === P.gen && P.playing;
+  const pause = +settings.sleepPause * 1000;
+  while (alive()){
+    const s = stories[P.story];
+    $("p-title").textContent = s.titel + " · " + s.title;
+    if (withTitle){
+      showSentence(s.titel, s.title, "de");
+      await sayWait(s.titel, "de-DE", .85, vol()); if (!alive()) return;
+      await wait(800); showSentence(s.titel, s.title, "en");
+      await sayWait(s.title, "en-GB", .8, vol()); if (!alive()) return;
+      await wait(pause); withTitle = false;
+    }
+    if (P.idx >= s.saetze.length){
+      if (settings.sleepAll === "1"){ P.story = (P.story + 1) % stories.length; P.idx = 0; withTitle = true; continue; }
+      return sleepEnd();
+    }
+    if (P.endAt && Date.now() > P.endAt) return sleepEnd();
+    const [de, en] = s.saetze[P.idx];
+    $("p-info").textContent = `Satz ${P.idx + 1} von ${s.saetze.length}` + (P.endAt ? ` · aus in ${Math.max(1, Math.round((P.endAt - Date.now()) / 60e3))} Min` : "");
+    showSentence(de, en, "de");
+    await sayWait(de, "de-DE", .85, vol()); if (!alive()) return;
+    await wait(Math.max(900, pause / 2)); if (!alive()) return;
+    showSentence(de, en, "en");
+    await sayWait(en, "en-GB", .8, vol()); if (!alive()) return;
+    await wait(pause); if (!alive()) return;
+    P.idx++;
+  }
+}
+// in den letzten 3 Minuten vor dem Ausschalten wird es langsam leiser
+function vol(){ if (!P.endAt) return 1; const left = (P.endAt - Date.now()) / 60e3; return left >= 3 ? 1 : Math.max(.25, left / 3); }
+function sleepEnd(){ sleepPause(); $("p-info").textContent = "Gute Nacht 🌙"; }
+
+$("open-sleep").onclick = async () => { show("sleep"); try{ await loadStories(); }catch(e){ $("stories").textContent = "Geschichten konnten nicht geladen werden."; } };
+$("sleep-back").onclick = () => show("home");
+$("p-stop").onclick = sleepStop;
+$("p-play").onclick = () => P.playing ? sleepPause() : sleepPlay(false);
+$("p-next").onclick = () => { const s = stories[P.story]; P.idx = Math.min(P.idx + 1, s.saetze.length); sleepPlay(false); };
+$("p-prev").onclick = () => { P.idx = Math.max(P.idx - 1, 0); sleepPlay(false); };
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
 load().catch(() => { $("total").textContent = "Vokabeln konnten nicht geladen werden."; });

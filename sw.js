@@ -1,7 +1,7 @@
 // Offline-Unterstützung: lädt bei Internetverbindung immer die neueste Version,
 // ohne Verbindung die zuletzt gespeicherte.
-const CACHE = "en-v2";
-const FILES = ["./", "index.html", "vokabeln.json", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png"];
+const CACHE = "en-v3";
+const FILES = ["./", "index.html", "vokabeln.json", "geschichten.json", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
