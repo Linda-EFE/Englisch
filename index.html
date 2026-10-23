@@ -332,18 +332,18 @@ function reveal(){
   $("aspeak").classList.remove("hidden");
 }
 // Tippen irgendwo auf den Bildschirm: 1. Tipp liest die Frage vor,
-// 2. Tipp deckt die Antwort auf und liest sie vor, jeder weitere Tipp wiederholt die Antwort.
+// 2. Tipp deckt die Antwort auf und liest sie vor, 3. Tipp geht zur nächsten Vokabel.
 function tap(){
   if (S.step === 0){ speakQuestion(); S.step = 1; }
   else if (S.step === 1){ reveal(); speakAnswer(); S.step = 2; }
-  else speakAnswer();
+  else { grade(true); return; }   // 3. Tipp: weiter zur nächsten Vokabel (zählt als gewusst)
   showStep();
 }
 function showStep(){
   $("reveal").textContent = S.step === 0 ? "🔊 Frage vorlesen" : "Aufdecken";
   $("hint").textContent = ["Tippe irgendwo auf den Bildschirm, um die Frage zu hören.",
     "Nochmal tippen: Antwort aufdecken und vorlesen.",
-    "Tippen: Antwort nochmal hören."][S.step];
+    "Nochmal tippen: nächste Vokabel (zählt als gewusst). Nicht gewusst? Dann ✗ Falsch drücken."][S.step];
 }
 function grade(ok){
   const item = S.cur, w = item.w;
@@ -382,7 +382,7 @@ function sayEn(){
   const [en] = splitPron(S.cur.w.en);
   say(en.replace(/\(.*?\)/g, "").replace(/\bsth\.?/g, "something").replace(/\bsb\.?/g, "somebody"), "en-GB");
 }
-function sayDe(){ say(S.cur.w.de.replace(/\bjmd(m|n|s)?\.?/g, "jemand").replace(/\betw\.?/g, "etwas"), "de-DE"); }
+function sayDe(){ say(S.cur.w.de.replace(/\bjmd(m|n|s)?\.?(?![a-zäöüß])/g, "jemand").replace(/\betw\.?(?![a-zäöüß])/g, "etwas"), "de-DE"); }
 // Frage bzw. Antwort in der jeweiligen Sprache vorlesen
 function speakQuestion(){ S.cur.dir === "en" ? sayEn() : sayDe(); }
 function speakAnswer(){ S.cur.dir === "en" ? sayDe() : sayEn(); }
