@@ -63,6 +63,8 @@ h2{font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
 .ans{border-top:1px solid var(--line);margin-top:22px;padding-top:20px;font-size:22px;white-space:pre-line;word-break:break-word}
 .meta{font-size:13px;color:var(--muted);margin-top:14px}
 .speak{position:absolute;top:12px;right:12px;border:0;background:transparent;font-size:22px;padding:6px;color:var(--muted)}
+.aspeak{align-self:center;margin-top:12px;border:1.5px solid var(--line);background:transparent;color:var(--muted);
+  font:inherit;font-size:14px;padding:6px 14px;border-radius:20px}
 .again{font-size:12px;color:var(--mid);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
 .actions{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));
   background:linear-gradient(to top,var(--bg) 70%,transparent)}
@@ -130,12 +132,13 @@ h2{font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute
     <span class="count" id="count"></span>
   </div>
   <div class="card quiz" id="qcard">
-    <button class="speak" id="speak" aria-label="Vorlesen">🔊</button>
     <div class="again hidden" id="again">Nochmal</div>
     <div class="dir" id="qdir"></div>
     <div class="q" id="qtext"></div>
     <div class="pron" id="qpron"></div>
+    <button class="aspeak" id="speak" aria-label="Frage vorlesen">🔊 Frage vorlesen</button>
     <div class="ans hidden" id="atext"></div>
+    <button class="aspeak hidden" id="aspeak" aria-label="Antwort vorlesen">🔊 Antwort vorlesen</button>
     <div class="meta hidden" id="ameta"></div>
   </div>
   <div class="actions"><div class="in" id="act-reveal">
@@ -309,7 +312,7 @@ function next(){
   $("qtext").textContent = dir === "en" ? en : w.de;
   $("qpron").textContent = dir === "en" ? pron : "";
   $("atext").textContent = dir === "en" ? w.de : en + (pron ? "\n" + pron : "");
-  $("speak").classList.toggle("hidden", dir !== "en");
+  $("aspeak").classList.add("hidden");
   $("again").classList.toggle("hidden", !item.retry);
   $("atext").classList.add("hidden"); $("ameta").classList.add("hidden");
   $("act-reveal").classList.remove("hidden"); $("act-grade").classList.add("hidden");
@@ -322,7 +325,8 @@ function reveal(){
   $("ameta").textContent = w.tot ? `Stufe ${Math.max(w.pos,0)} von ${MAXSTUFE} · ${w.tot}× abgefragt · zuletzt ${new Date(w.date).toLocaleDateString("de-DE")}` : "Noch nie geübt";
   $("ameta").classList.remove("hidden");
   $("act-reveal").classList.add("hidden"); $("act-grade").classList.remove("hidden");
-  if (dir === "de") speak();
+  $("aspeak").classList.remove("hidden");
+  if (dir === "de") sayEn();
 }
 function grade(ok){
   const item = S.cur, w = item.w;
@@ -351,20 +355,27 @@ function finish(){
   $("d-wrong-again").classList.toggle("hidden", !S.wrong.length);
   show("done");
 }
-function speak(){
+function say(txt, lang){
   try{
-    const [en] = splitPron(S.cur.w.en);
-    const txt = en.replace(/\(.*?\)/g, "").replace(/\bsth\.?/g, "something").replace(/\bsb\.?/g, "somebody");
-    const u = new SpeechSynthesisUtterance(txt); u.lang = "en-GB"; u.rate = .9;
+    const u = new SpeechSynthesisUtterance(txt.replace(/\n/g, ". ")); u.lang = lang; u.rate = .9;
     speechSynthesis.cancel(); speechSynthesis.speak(u);
   }catch(e){}
 }
+function sayEn(){
+  const [en] = splitPron(S.cur.w.en);
+  say(en.replace(/\(.*?\)/g, "").replace(/\bsth\.?/g, "something").replace(/\bsb\.?/g, "somebody"), "en-GB");
+}
+function sayDe(){ say(S.cur.w.de.replace(/\bjmd(m|n|s)?\.?/g, "jemand").replace(/\betw\.?/g, "etwas"), "de-DE"); }
+// Frage bzw. Antwort in der jeweiligen Sprache vorlesen
+function speakQuestion(){ S.cur.dir === "en" ? sayEn() : sayDe(); }
+function speakAnswer(){ S.cur.dir === "en" ? sayDe() : sayEn(); }
 $("start").onclick = () => startRound();
 $("reveal").onclick = reveal;
-$("qcard").onclick = e => { if (e.target.id !== "speak" && !$("act-reveal").classList.contains("hidden")) reveal(); };
+$("qcard").onclick = e => { if (!e.target.closest("button") && !$("act-reveal").classList.contains("hidden")) reveal(); };
 $("yes").onclick = () => grade(true);
 $("no").onclick = () => grade(false);
-$("speak").onclick = speak;
+$("speak").onclick = speakQuestion;
+$("aspeak").onclick = speakAnswer;
 $("quit").onclick = () => { if (S.done === 0 || confirm("Runde beenden? Bisherige Antworten sind gespeichert.")) show("home"); };
 $("d-again").onclick = () => startRound();
 $("d-wrong-again").onclick = () => startRound(S.wrong);
